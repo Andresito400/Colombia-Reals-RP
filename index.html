@@ -168,4 +168,140 @@
 
             <div class="relative flex py-1 items-center">
                 <div class="flex-grow border-t border-red-900/40"></div>
-                <span class="flex-shrink mx-4 text-xs font-mono uppercase text-red-50
+                <span class="flex-shrink mx-4 text-xs font-mono uppercase text-red-500/60">Comunidad</span>
+                <div class="flex-grow border-t border-red-900/40"></div>
+            </div>
+
+            <!-- Botón de Discord -->
+            <a href="https://discord.gg" target="_blank" class="w-full bg-[#5865F2]/20 hover:bg-[#5865F2]/30 border border-[#5865F2]/50 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-[#5865F2]/20 group">
+                <i class="fa-brands fa-discord text-2xl text-[#5865F2] group-hover:scale-110 transition-transform"></i>
+                <span>Unirse al Discord Oficial</span>
+            </a>
+
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="relative z-10 text-center text-xs text-red-400/50 font-mono mt-8 mb-4">
+        <p>&copy; 2026 Colombia Reals RP. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Script de Funcionalidad e Interacción 3D -->
+    <script>
+        // Dirección IP del servidor
+        const SERVER_IP = "mtasa://51.81.48.177:22003";
+
+        // Función para copiar la IP al portapapeles
+        function copyIP() {
+            navigator.clipboard.writeText(SERVER_IP).then(() => {
+                showToast();
+            }).catch(err => {
+                const el = document.createElement('textarea');
+                el.value = SERVER_IP;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast();
+            });
+        }
+
+        // Mostrar notificación flotante
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3000);
+        }
+
+        // Configuración del Fondo 3D con Three.js
+        const canvas = document.getElementById('bg-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Creación del Sistema de Partículas Rojo
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+        const colorsArray = new Float32Array(particlesCount * 3);
+
+        const color1 = new THREE.Color('#e11d48'); // Rojo principal
+        const color2 = new THREE.Color('#881337'); // Rojo oscuro
+        const color3 = new THREE.Color('#ffffff'); // Blanco brillo
+
+        for(let i = 0; i < particlesCount * 3; i += 3) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+            posArray[i+1] = (Math.random() - 0.5) * 15;
+            posArray[i+2] = (Math.random() - 0.5) * 15;
+
+            const randColor = Math.random();
+            let mixedColor;
+            if(randColor > 0.8) mixedColor = color3;
+            else if(randColor > 0.4) mixedColor = color1;
+            else mixedColor = color2;
+
+            colorsArray[i] = mixedColor.r;
+            colorsArray[i+1] = mixedColor.g;
+            colorsArray[i+2] = mixedColor.b;
+        }
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.045,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        camera.position.z = 5;
+
+        // Interacción con el movimiento del mouse
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+        });
+
+        // Bucle de Animación Continuo
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            particlesMesh.rotation.y += mouseX * 0.05;
+            particlesMesh.rotation.x += mouseY * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Ajuste dinámico de ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
